@@ -15,7 +15,10 @@ module.exports = (mongoose) => {
           type: String,
           default: null
         },
-        role: { type: String, enum: ["U", "P"], default: "U"},
+        firebase_token: {
+          type: String,
+          default: null
+        },
         email: { type: String, default: null },
         password: { type: String, default: null },
         username: { type: String, default: null },

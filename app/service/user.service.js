@@ -145,25 +145,22 @@ class UserServices {
     let lang = Message["en"];
     req.lang = lang;
     const { LOGIN_SUCCESSFULLY } = req.lang;
-    const { uid, fullName, email, role, loginType, deviceId, deviceType } =
+    const { uid, userName, email, mobile } =
       req.body;
     try {
       let user = await User.findOne({ email });
-      let OTP = process.env.OTP_DEV;
+      // let OTP = process.env.OTP_DEV;
       if (!user) {
         user = new User({
-          fullname: fullName,
+          username: userName,
           email: email,
-          login_type: loginType,
-          device_id: deviceId,
-          device_type: deviceType,
-          role,
+          mobile: mobile,
           uid,
         });
         await saveUser(user);
 
-        const new_user_otp = new UserOtp({ otp: OTP, user_id: user._id }); //Creating the user otp object
-        await saveUserOTP(new_user_otp); //Saving the user otp object
+        // const new_user_otp = new UserOtp({ otp: OTP, user_id: user._id }); //Creating the user otp object
+        // await saveUserOTP(new_user_otp); //Saving the user otp object
       }
       let payload = {
         email: user.email,
