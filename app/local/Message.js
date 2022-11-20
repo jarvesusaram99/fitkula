@@ -260,7 +260,7 @@ module.exports = {
                 UPDATED_ADDRESS: 'Your address has been updated successfully.',
                 UPLOAD_VALID_FILE: 'Please upload a valid file',
                 USER_IS_BLOCKED: 'This user is blocked and cannot access any of the services',
-                USER_NOT_FOUND: "The user is already registered.",
+                USER_NOT_FOUND: "User not found.",
                 UID_REQ: "UID is required",
                 USER_FETCHED: "User have been fetched successfully",
                 USERS_NOT_FOUND: "No user found with this keyword.",

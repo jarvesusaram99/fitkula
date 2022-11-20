@@ -1,4 +1,5 @@
 const db = require("../models");
+const bcrypt = require('bcrypt');
 const User = db.users;
 const UserOtp = db.user_otp;
 const Address = db.address;
@@ -35,10 +36,11 @@ class UserServices {
     try{
       const user = await User.findOne({email: email});
       if(!user){
+        let bcryptPassword = bcrypt.hashSync(password, 10);
         const myData = new User({
           username: userName,
           email: email,
-          password: password
+          password: bcryptPassword
         })
         myData.save()
         return {
@@ -72,9 +74,9 @@ class UserServices {
   loginUser = async (req) => {
     let lang = Message["en"];
     req.lang = lang;
-    const { NOT_ACTIVE, SEND_OTP_SUCCESSFULLY, USER_NOT_FOUND } = req.lang;
+    const { NOT_ACTIVE, LOGIN_SUCCESSFULLY, USER_NOT_FOUND } = req.lang;
     let OTP = process.env.OTP_DEV;
-    const { mobile, role, countryCode, loginType, deviceId, deviceType } =
+    const { email, password} =
       req.body;
     try {
       // let OTP
@@ -82,26 +84,15 @@ class UserServices {
       //     OTP = Math.floor(100000 + Math.random() * 900000)
       // }
       // while (OTP.toString().length !== 6)
-      let user = await User.findOne({ mobile });
-      if (!user) {
-        // Save User in the database
-        const user = new User({
-          mobile,
-          role,
-          country_code: countryCode,
-          login_type: loginType,
-          device_id: deviceId,
-          device_type: deviceType,
-        }); // Creating the user object
-        await saveUser(user);
-        // let twilio_response = await sendOTP(countryCode + mobile, OTP)
-        const new_user_otp = new UserOtp({ otp: OTP, user_id: user._id }); //Creating the user otp object
-        await saveUserOTP(new_user_otp); //Saving the user otp object
-        return {
-          statusCode: STATUS_CODE.HTTP_200_OK,
-          status: true,
+      let user = await User.findOne({ email });
+
+      const matchedPassword = bcrypt.compareSync(password, user.password);
+      if (!user || matchedPassword === false) {
+          return {
+          statusCode: STATUS_CODE.HTTP_404_NOT_FOUND,
+          status: false,
           response: {},
-          message: SEND_OTP_SUCCESSFULLY,
+          message: USER_NOT_FOUND,
           metadata: [],
         };
       } else {
@@ -114,17 +105,22 @@ class UserServices {
             metadata: [],
           };
         } else {
-          // let twilio_response = await sendOTP(countryCode + mobile, OTP)
-          const new_user_otp = await UserOtp.findOneAndUpdate(
-            { user_id: user._id },
-            { $set: { otp: OTP } },
-            { new: true, useFindAndModify: false }
-          );
+          let payload = {
+            email: user.email,
+            id: user._id,
+          };
+          let Token = await generateAccessToken(payload, TOKEN_LIFE, true);
           return {
             statusCode: STATUS_CODE.HTTP_200_OK,
             status: true,
-            response: {},
-            message: SEND_OTP_SUCCESSFULLY,
+            response: {
+              user: {
+                email: user.email,
+                userName: user.username
+              },
+              token: Token
+            },
+            message: LOGIN_SUCCESSFULLY,
             metadata: [],
           };
         }
