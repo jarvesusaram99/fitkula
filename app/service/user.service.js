@@ -30,7 +30,7 @@ class UserServices {
   signupUser = async (req) =>{
     let lang = Message["en"];
     req.lang = lang;
-    const { NOT_ACTIVE, SEND_OTP_SUCCESSFULLY, USER_NOT_FOUND } = req.lang;
+    const { NOT_ACTIVE, SEND_OTP_SUCCESSFULLY, USER_NOT_FOUND, SIGNUP_SUCCESSFULLY } = req.lang;
     const {userName, email, password} = req.body;
     try{
       const user = await User.findOne({email: email});
@@ -41,24 +41,13 @@ class UserServices {
           password: password
         })
         myData.save()
-        .then(item => {
-          return {
+        return {
             statusCode: STATUS_CODE.HTTP_200_OK,
             status: true,
             response: {},
             message: SIGNUP_SUCCESSFULLY,
             metadata: [],
           };
-        })
-        .catch(err => {
-          return {
-            statusCode: STATUS_CODE.HTTP_400_BAD_REQUEST,
-            status: false,
-            response: {},
-            message: "Something went wrong please try again.",
-            metadata: [],
-          };        
-        });
       }else{
         return {
           status: false,
