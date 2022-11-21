@@ -75,9 +75,9 @@ class UserServices {
     let lang = Message["en"];
     req.lang = lang;
     const { NOT_ACTIVE, LOGIN_SUCCESSFULLY, USER_NOT_FOUND } = req.lang;
-    let OTP = process.env.OTP_DEV;
-    const { email, password} =
-      req.body;
+    // let OTP = process.env.OTP_DEV;
+    const { email, password} = req.body;
+    
     try {
       // let OTP
       // do {
@@ -86,8 +86,8 @@ class UserServices {
       // while (OTP.toString().length !== 6)
       let user = await User.findOne({ email });
 
-      const matchedPassword = bcrypt.compareSync(password, user.password);
-      if (!user || matchedPassword === false) {
+      if (!user) {
+        console.log("hello");
           return {
           statusCode: STATUS_CODE.HTTP_404_NOT_FOUND,
           status: false,
@@ -96,6 +96,16 @@ class UserServices {
           metadata: [],
         };
       } else {
+        const matchedPassword = bcrypt.compareSync(password, user.password);
+        if(matchedPassword === false){
+          return {
+            statusCode: STATUS_CODE.HTTP_400_BAD_REQUEST,
+            status: false,
+            response: {},
+            message: "Please enter currect password.",
+            metadata: [],
+          };
+        }
         if (user.status === 0) {
           return {
             statusCode: STATUS_CODE.HTTP_400_BAD_REQUEST,

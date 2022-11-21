@@ -47,10 +47,10 @@ class UserController {
         req.lang = lang;
         try {
             //schema - joi
-            // const { error } = AuthSchema.ValidatLogin(req.lang).validate(req.body);
-            // if (error) {
-            //     return sendError(res, STATUS_CODE.HTTP_400_BAD_REQUEST, false, {}, error.details[0].message);
-            // }
+            const { error } = AuthSchema.ValidatLogin(req.lang).validate(req.body);
+            if (error) {
+                return sendError(res, STATUS_CODE.HTTP_400_BAD_REQUEST, false, {}, error.details[0].message);
+            }
             const response = await UserService.loginUser(req);
             return sendResponse(res, response.statusCode, response.status, response.response, response.message, response.metadata)
         } catch (error) {
