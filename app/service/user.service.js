@@ -87,7 +87,6 @@ class UserServices {
       let user = await User.findOne({ email });
 
       if (!user) {
-        console.log("hello");
           return {
           statusCode: STATUS_CODE.HTTP_404_NOT_FOUND,
           status: false,
