@@ -120,15 +120,18 @@ class UserServices {
             id: user._id,
           };
           let Token = await generateAccessToken(payload, TOKEN_LIFE, true);
+          Token.user_id = user._id;
+          Token.email = user.email;
+          if (Token.user_id && Token.refresh_token) {
+            await saveRefreshToken(Token.user_id, Token.refresh_token);
+          }
           return {
             statusCode: STATUS_CODE.HTTP_200_OK,
             status: true,
             response: {
-              user: {
-                email: user.email,
-                userName: user.username
-              },
-              token: Token
+              user: user,
+              accessToken: Token.access_token,
+              refreshToken: Token.refresh_token,
             },
             message: LOGIN_SUCCESSFULLY,
             metadata: [],
@@ -151,10 +154,9 @@ class UserServices {
     let lang = Message["en"];
     req.lang = lang;
     const { LOGIN_SUCCESSFULLY } = req.lang;
-    const { uid, userName, email, mobile } =
-      req.body;
+    const { uid, userName, email, mobile } = req.body;
     try {
-      let user = await User.findOne({ email });
+      let user = await User.findOne({ $or: [ { email }, { mobile } ] });
       // let OTP = process.env.OTP_DEV;
       if (!user) {
         user = new User({
@@ -182,14 +184,15 @@ class UserServices {
         statusCode: STATUS_CODE.HTTP_200_OK,
         status: true,
         response: {
-          user: {
-            fullname: user.fullname,
-            email: user.email,
-            mobile: user.mobile,
-            status: user.status,
-            is_verified: user.is_verified,
-            _id: user._id,
-          },
+          user: user,
+          //  {
+          //   fullname: user.fullname,
+          //   email: user.email,
+          //   mobile: user.mobile,
+          //   status: user.status,
+          //   is_verified: user.is_verified,
+          //   _id: user._id,
+          // },
           accessToken: Token.access_token,
           refreshToken: Token.refresh_token,
         },
@@ -207,82 +210,82 @@ class UserServices {
     }
   };
 
-  userVerifyOtp = async (req) => {
-    let lang = Message["en"];
-    req.lang = lang;
-    const { OTP_EXPIRED, OTP_VERIFIED, NOT_VALID_OTP } = req.lang;
-    const { mobile, otp } = req.body;
-    try {
-      let user = await User.findOne({ mobile: mobile });
-      if (user) {
-        let new_user_otp = await UserOtp.findOne({
-          user_id: user._id,
-        }).populate({
-          path: "user_id",
-          select: "fullname mobile email status is_verified",
-          model: User,
-        });
-        let updatedTime = Date.parse(new_user_otp.updatedAt) + 15 * 60 * 1000;
-        let currentTime = new Date(new Date().toISOString()).getTime();
-        if (currentTime > updatedTime) {
-          return {
-            statusCode: STATUS_CODE.HTTP_400_BAD_REQUEST,
-            status: false,
-            response: {},
-            message: OTP_EXPIRED,
-            metadata: [],
-          };
-        } else {
-          if (otp === new_user_otp.otp) {
-            let payload = {
-              mobile_no: user.mobile,
-              id: user._id,
-            };
-            let Token = await generateAccessToken(payload, TOKEN_LIFE, true);
-            Token.user_id = user._id;
-            Token.mobile_no = user.mobile;
-            if (Token.user_id && Token.refresh_token) {
-              await saveRefreshToken(Token.user_id, Token.refresh_token);
-            }
-            return {
-              statusCode: STATUS_CODE.HTTP_200_OK,
-              status: true,
-              response: {
-                user: {
-                  fullname: user.fullname,
-                  email: user.email,
-                  mobile: user.mobile,
-                  status: user.status,
-                  is_verified: user.is_verified,
-                  _id: user._id,
-                },
-                accessToken: Token.access_token,
-                refreshToken: Token.refresh_token,
-              },
-              message: OTP_VERIFIED,
-              metadata: [],
-            };
-          } else {
-            return {
-              statusCode: STATUS_CODE.HTTP_400_BAD_REQUEST,
-              status: false,
-              response: {},
-              message: NOT_VALID_OTP,
-              metadata: [],
-            };
-          }
-        }
-      }
-    } catch (error) {
-      return {
-        status: false,
-        statusCode: STATUS_CODE.HTTP_500_INTERNAL_SERVER_ERROR,
-        response: {},
-        message: error.message,
-        metadata: [],
-      };
-    }
-  };
+  // userVerifyOtp = async (req) => {
+  //   let lang = Message["en"];
+  //   req.lang = lang;
+  //   const { OTP_EXPIRED, OTP_VERIFIED, NOT_VALID_OTP } = req.lang;
+  //   const { mobile, otp } = req.body;
+  //   try {
+  //     let user = await User.findOne({ mobile: mobile });
+  //     if (user) {
+  //       let new_user_otp = await UserOtp.findOne({
+  //         user_id: user._id,
+  //       }).populate({
+  //         path: "user_id",
+  //         select: "fullname mobile email status is_verified",
+  //         model: User,
+  //       });
+  //       let updatedTime = Date.parse(new_user_otp.updatedAt) + 15 * 60 * 1000;
+  //       let currentTime = new Date(new Date().toISOString()).getTime();
+  //       if (currentTime > updatedTime) {
+  //         return {
+  //           statusCode: STATUS_CODE.HTTP_400_BAD_REQUEST,
+  //           status: false,
+  //           response: {},
+  //           message: OTP_EXPIRED,
+  //           metadata: [],
+  //         };
+  //       } else {
+  //         if (otp === new_user_otp.otp) {
+  //           let payload = {
+  //             mobile_no: user.mobile,
+  //             id: user._id,
+  //           };
+  //           let Token = await generateAccessToken(payload, TOKEN_LIFE, true);
+  //           Token.user_id = user._id;
+  //           Token.mobile_no = user.mobile;
+  //           if (Token.user_id && Token.refresh_token) {
+  //             await saveRefreshToken(Token.user_id, Token.refresh_token);
+  //           }
+  //           return {
+  //             statusCode: STATUS_CODE.HTTP_200_OK,
+  //             status: true,
+  //             response: {
+  //               user: {
+  //                 fullname: user.fullname,
+  //                 email: user.email,
+  //                 mobile: user.mobile,
+  //                 status: user.status,
+  //                 is_verified: user.is_verified,
+  //                 _id: user._id,
+  //               },
+  //               accessToken: Token.access_token,
+  //               refreshToken: Token.refresh_token,
+  //             },
+  //             message: OTP_VERIFIED,
+  //             metadata: [],
+  //           };
+  //         } else {
+  //           return {
+  //             statusCode: STATUS_CODE.HTTP_400_BAD_REQUEST,
+  //             status: false,
+  //             response: {},
+  //             message: NOT_VALID_OTP,
+  //             metadata: [],
+  //           };
+  //         }
+  //       }
+  //     }
+  //   } catch (error) {
+  //     return {
+  //       status: false,
+  //       statusCode: STATUS_CODE.HTTP_500_INTERNAL_SERVER_ERROR,
+  //       response: {},
+  //       message: error.message,
+  //       metadata: [],
+  //     };
+  //   }
+  // };
 
   //Update User Basic detail
   userUpdateDetails = async (req) => {

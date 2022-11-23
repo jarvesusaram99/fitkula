@@ -19,6 +19,7 @@ module.exports = (mongoose) => {
           type: String,
           default: null
         },
+        is_profile_com: {type: Boolean, default: false},
         email: { type: String, default: null },
         password: { type: String, default: null },
         username: { type: String, default: null },
