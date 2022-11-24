@@ -11,7 +11,11 @@ class UserBasicSchema {
                     "any.required": lang.FULL_NAME_REQ,
                     "string.pattern.base": lang.VALID_FULLNAME,
                 }),
-                email: Joi.string().min(6).required().email().messages({
+                userName: Joi.string().required().messages({
+                    "any.required": lang.FULL_NAME_REQ,
+                    "string.pattern.base": lang.VALID_FULLNAME,
+                }),
+                email: Joi.string().min(6).email().messages({
                     "any.required": lang.EMAIL_REQ,
                     "string.min": lang.EMAIL_MIN,
                     "string.email": lang.VALID_EMAIL
@@ -24,7 +28,7 @@ class UserBasicSchema {
                     "any.required": lang.DOB_REQ,
                 }),
                 deletedFiles: Joi.string(),
-                mobile: Joi.string().min(9).max(12).pattern(/^[0-9]+$/).required().messages({
+                mobile: Joi.string().min(9).max(12).pattern(/^[0-9]+$/).messages({
                     "any.required": lang.MOBILE_NO_REQUIRED,
                     "string.pattern.base": lang.VALID_MOBILE_NUMBER,
                     "string.max": lang.MOBILE_NO_MAX,
