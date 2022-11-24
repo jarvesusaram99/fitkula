@@ -85,7 +85,6 @@ class UserServices {
       // }
       // while (OTP.toString().length !== 6)
       let user = await User.findOne({ email });
-
       if (!user) {
           return {
           statusCode: STATUS_CODE.HTTP_404_NOT_FOUND,
@@ -95,6 +94,7 @@ class UserServices {
           metadata: [],
         };
       } else {
+        
         const matchedPassword = bcrypt.compareSync(password, user.password);
         if(matchedPassword === false){
           return {
@@ -296,29 +296,17 @@ class UserServices {
       MOBILE_USER_EXIT,
       EMAIL_USER_EXIST,
     } = req.lang;
-    const { fullName, email, mobile, dob } = req.body;
+    const { fullName,userName, email, mobile, dob } = req.body;
+    const {id} = req.params;
     try {
-      let mobileNum = await User.findOne({
-        $and: [{ mobile }, { _id: { $ne: req.user.id } }],
-      });
-      let emailAdd = await User.findOne({
-        $and: [{ email }, { _id: { $ne: req.user.id } }],
-      });
+      const user = await User.findOne({_id:req.user.id}) 
       let updatedUser = {};
-      if (mobileNum) {
+      if (!user) {
         return {
           statusCode: STATUS_CODE.HTTP_400_BAD_REQUEST,
           status: false,
           updatedUser,
-          message: MOBILE_USER_EXIT,
-          metadata: [],
-        };
-      } else if (emailAdd) {
-        return {
-          statusCode: STATUS_CODE.HTTP_400_BAD_REQUEST,
-          status: false,
-          updatedUser,
-          message: EMAIL_USER_EXIST,
+          message: "You are not registerd user Please signup first.",
           metadata: [],
         };
       } else {
@@ -326,10 +314,13 @@ class UserServices {
         let myDeletedFiles = [];
         const folderName = "profile_pictures";
         const myId = req.user.id;
+        // user.is_profile_com = true;
         let update_user = {
           fullname: fullName,
           email,
           mobile,
+          userName,
+          is_profile_com: true,
           date_of_birth: dob,
         };
         if (req.files) {
