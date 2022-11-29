@@ -18,7 +18,7 @@ class AuthSchema {
     ValidateSignup = (lang) =>{
         try{
             return Joi.object({
-                userName: Joi.string().min(3).max(12).required().messages({
+                userName: Joi.string().max(12).required().messages({
                     "any.required": lang.USER_NAME_REQ,
                     "string.max": lang.USER_NAME_MAX,
                     "string.min": lang.USER_NAME_MIN,

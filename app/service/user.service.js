@@ -43,10 +43,16 @@ class UserServices {
           password: bcryptPassword
         })
         myData.save()
+          let payload = {
+            email: email,
+          };
+        let Token = await generateAccessToken(payload, TOKEN_LIFE, true);
         return {
             statusCode: STATUS_CODE.HTTP_200_OK,
             status: true,
-            response: {},
+            response: {
+              accessToken: Token.access_token,
+            },
             message: SIGNUP_SUCCESSFULLY,
             metadata: [],
           };

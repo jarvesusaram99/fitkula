@@ -25,11 +25,12 @@ class PostService {
     const { POST_CREATED_SUCCESSFULLY, UPLOAD_VALID_FILE } = req.lang;
     const {
       description,
-      status,
+      // status,
       visibilityPermission,
-      city,
-      latitude,
-      longitude,
+      commentPermission
+      // city,
+      // latitude,
+      // longitude,
     } = req.body;
     try {
       let response;
@@ -38,11 +39,8 @@ class PostService {
         const new_post = await new Post({
           user_id: req.user.id,
           post_desc: description,
-          status,
           visibility_permission: visibilityPermission,
-          city,
-          latitude,
-          longitude,
+          comment_permission: commentPermission
         });
         await new_post.save();
         const myId = new_post._id;
