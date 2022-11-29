@@ -1,7 +1,5 @@
 "use strict"
-
 const Joi = require('joi');
-
 
 class UserBasicSchema {
     ValidateBasicDetail = (lang) => {
@@ -11,15 +9,15 @@ class UserBasicSchema {
                     "any.required": lang.FULL_NAME_REQ,
                     "string.pattern.base": lang.VALID_FULLNAME,
                 }),
-                userName: Joi.string().required().messages({
+                userName: Joi.string().messages({
                     "any.required": lang.FULL_NAME_REQ,
                     "string.pattern.base": lang.VALID_FULLNAME,
                 }),
-                email: Joi.string().min(6).email().messages({
-                    "any.required": lang.EMAIL_REQ,
-                    "string.min": lang.EMAIL_MIN,
-                    "string.email": lang.VALID_EMAIL
-                }),
+                // email: Joi.string().min(6).email().messages({
+                //     "any.required": lang.EMAIL_REQ,
+                //     "string.min": lang.EMAIL_MIN,
+                //     "string.email": lang.VALID_EMAIL
+                // }),
                 profilePicture: Joi.string().label('image').error((error) => {
                     error[0].message = lang.IMAGE_UPLOAD
                     return errorors[0];
