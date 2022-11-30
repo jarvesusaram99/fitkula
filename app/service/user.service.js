@@ -42,9 +42,11 @@ class UserServices {
           email: email,
           password: bcryptPassword
         })
-        myData.save()
+        await myData.save();
+        const findUser = await User.findOne({email});
           let payload = {
             email: email,
+            id: findUser._id
           };
         let Token = await generateAccessToken(payload, TOKEN_LIFE, true);
         return {
@@ -52,6 +54,7 @@ class UserServices {
             status: true,
             response: {
               accessToken: Token.access_token,
+              user_id: findUser._id
             },
             message: SIGNUP_SUCCESSFULLY,
             metadata: [],
