@@ -17,10 +17,10 @@ class PostController {
         let lang = Message["en"];
         req.lang = lang;
         try {
-            // const { error } = PostSchema.ValidatePost(req.lang).validate(req.body);
-            // if (error) {
-            //     return sendError(res, STATUS_CODE.HTTP_400_BAD_REQUEST, false, {}, error.details[0].message);
-            // }
+            const { error } = PostSchema.ValidatePost(req.lang).validate(req.body);
+            if (error) {
+                return sendError(res, STATUS_CODE.HTTP_400_BAD_REQUEST, false, {}, error.details[0].message);
+            }
             const response = await PostService.createPost(req);
             return sendResponse(res, response.statusCode, response.status, response.response, response.message, response.metadata);
         } catch (error) {
